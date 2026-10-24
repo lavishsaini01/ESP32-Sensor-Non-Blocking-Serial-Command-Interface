@@ -55,8 +55,8 @@ void readandReport_ADC (int NUM_SAMPLES, int POT_PIN)
     float percentage = (average / maximum_ADC_value) * 100;
     float voltage = (average / maximum_ADC_value) * 3.3 ;
 
-    Serial.print("  ||  ADC = ");
-    Serial.print(adcValue);
+    // Serial.print("  ||  ADC = ");
+    // Serial.print(adcValue);
 
     Serial.print(" | Average ADC = ");
     Serial.print(average);
@@ -130,21 +130,36 @@ void processCommand(String command)
         else if (command.startsWith("set interval "))
         {
             String interval_string = command.substring(13);
-            long newinterval = interval_string.toInt();
-                if (newinterval >= 100 && newinterval <= 10000)
-                {
+            interval_string.trim(); // Removes hidden newline or carriage return characters
+
+            bool isValid = true;
+            if (interval_string.length() == 0) {
+                isValid = false;
+            } 
+            else {
+                for (unsigned int i = 0; i < interval_string.length(); i++) {
+                    if (!isDigit(interval_string[i])) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (isValid) {
+                long newinterval = interval_string.toInt();
+                if (newinterval >= 100 && newinterval <= 10000) {
                     interval = newinterval;
                     Serial.print("New interval : ");
                     Serial.print(newinterval);
                     Serial.println(" ms");
-                }
+                } 
                 else {
-                    Serial.println("Invalid Interval");
+                    Serial.println("Error: Value out of range (must be 100 to 10000 ms).");
                 }
-        }
-
-        else{
-            Serial.println("Unknown command. Type help.");
+            } 
+            else {
+                Serial.println("Error: Invalid input. Only integers are accepted.");
+            }
         }
     }
 
